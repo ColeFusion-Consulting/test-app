@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test App — Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="header">
+    <h1>Test App</h1>
+    <div class="nav">
+      <a href="/">Home</a>
+      <a href="/login.html">Login</a>
+      <a href="/dashboard.html">Dashboard</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h2>Dashboard</h2>
+    <p class="welcome-message" id="welcome-msg">Welcome! Here's your project overview.</p>
+
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card"><div class="stat-value" id="stat-total">-</div><div class="stat-label">Total Tasks</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-todo">-</div><div class="stat-label">To Do</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-progress">-</div><div class="stat-label">In Progress</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-done">-</div><div class="stat-label">Done</div></div>
+    </div>
+
+    <h3 style="margin-bottom:16px;">Tasks</h3>
+    <table class="data-table" id="tasks-table">
+      <thead>
+        <tr><th>ID</th><th>Title</th><th>Status</th><th>Assignee</th></tr>
+      </thead>
+      <tbody id="tasks-body"></tbody>
+    </table>
+
+    <h3 style="margin:32px 0 16px;">Users</h3>
+    <table class="data-table" id="users-table">
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr>
+      </thead>
+      <tbody id="users-body"></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadDashboard() {
+      try {
+        const [statsRes, tasksRes, usersRes] = await Promise.all([
+          fetch('/api/tasks/stats'),
+          fetch('/api/tasks'),
+          fetch('/api/users'),
+        ]);
+
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          document.getElementById('stat-total').textContent = stats.total;
+          document.getElementById('stat-todo').textContent = stats.todo;
+          document.getElementById('stat-progress').textContent = stats.inProgress || stats.in_progress;
+          document.getElementById('stat-done').textContent = stats.done;
+        }
+
+        if (tasksRes.ok) {
+          const tasks = await tasksRes.json();
+          document.getElementById('tasks-body').innerHTML = tasks.map(t => `
+            <tr>
+              <td>${t.id}</td>
+              <td>${t.title}</td>
+              <td><span class="badge badge-${t.status}">${t.status.replace('_', ' ')}</span></td>
+              <td>${t.assignee}</td>
+            </tr>
+          `).join('');
+        }
+
+        if (usersRes.ok) {
+          const users = await usersRes.json();
+          document.getElementById('users-body').innerHTML = users.map(u => `
+            <tr>
+              <td>${u.id}</td>
+              <td>${u.name}</td>
+              <td class="user-email">${u.email}</td>
+              <td>${u.role}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        document.getElementById('welcome-msg').textContent = 'Failed to load dashboard data.';
+      }
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
