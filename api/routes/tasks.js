@@ -13,16 +13,6 @@ tasksRouter.get('/', (req, res) => {
   res.json(tasks);
 });
 
-tasksRouter.get('/stats', (req, res) => {
-  const stats = {
-    total: tasks.length,
-    todo: tasks.filter(t => t.status === 'todo').length,
-    inProgress: tasks.filter(t => t.status === 'in_progress').length,
-    done: tasks.filter(t => t.status === 'done').length,
-  };
-  res.json(stats);
-});
-
 tasksRouter.post('/', (req, res) => {
   const { title, assignee } = req.body;
   if (!title) return res.status(400).json({ error: 'title required' });
