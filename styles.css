@@ -59,12 +59,12 @@ body {
   text-decoration: none;
 }
 
-.btn-primary {
+.btn-submit {
   background: var(--primary);
   color: #fff;
 }
 
-.btn-primary:hover { background: var(--primary-hover); }
+.btn-submit:hover { background: var(--primary-hover); }
 
 .btn-danger {
   background: var(--danger);
